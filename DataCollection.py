@@ -1,4 +1,3 @@
-
 class DataCollection:
 
     def __init__(self, all_data):
@@ -18,7 +17,7 @@ class DataCollection:
 
         # create comma separated string row
         if self.all_data:
-            input_row = str(current_speed)+"," + \
+            input_row = str(current_speed) + "," + \
                         str(current_velocity.x) + "," + \
                         str(current_velocity.y) + "," + \
                         str(current_angle) + "," + \
@@ -41,30 +40,29 @@ class DataCollection:
             thrust = 1
         new_vel_y = lander.velocity.y
         new_vel_x = lander.velocity.x
-        
+
         turning = [0, 0]
         if (controller.is_left()):
-            turning = [1,0]
+            turning = [1, 0]
         elif (controller.is_right()):
-            turning = [0,1]
+            turning = [0, 1]
         new_angle = lander.current_angle
 
         # add output values to the string input row
         if self.all_data:
             status_row = input_row + "," + \
-                        str(thrust) + "," + \
-                        str(new_vel_y) + "," + \
-                        str(new_vel_x) + "," + \
-                        str(new_angle) + "," + \
-                        str(turning[0]) + "," + str(turning[1]) + "\n"
+                         str(thrust) + "," + \
+                         str(new_vel_y) + "," + \
+                         str(new_vel_x) + "," + \
+                         str(new_angle) + "," + \
+                         str(turning[0]) + "," + str(turning[1]) + "\n"
         else:
             status_row = input_row + "," + \
-                        str(new_vel_y) + "," + \
-                        str(new_vel_x) + "\n"
+                         str(new_vel_y) + "," + \
+                         str(new_vel_x) + "\n"
 
         # save comma separated row in the file
         self.buffer.append(status_row)
-
 
     def write_to_file(self):
         self.data_file = open("ce889_dataCollection.csv", "a")

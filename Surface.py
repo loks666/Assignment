@@ -1,4 +1,5 @@
-import pygame, random, math
+import pygame
+import random
 
 
 class Surface(pygame.sprite.Sprite):
@@ -9,17 +10,18 @@ class Surface(pygame.sprite.Sprite):
         landing_pad_points = self.build_landing_pad(100, screen_dimension[1] * 0.1, screen_dimension[0],
                                                     screen_dimension[1])
         self.polygon_points = self.random_ground(screen_dimension[1], screen_dimension[0], 20, 50,
-                                                    landing_pad_points)
+                                                 landing_pad_points)
         # create the canvas where the polygon will be painted, make it 
         self.image = pygame.Surface([screen_dimension[0], screen_dimension[1]])
-        self.image.fill((255,255,255))
+        self.image.fill((255, 255, 255))
         self.image.set_colorkey((255, 255, 255))
         # create the polygon using the random points
-        self.polygon_rect = pygame.draw.polygon(self.image, (192,192,192), self.polygon_points)        
+        self.polygon_rect = pygame.draw.polygon(self.image, (192, 192, 192), self.polygon_points)
 
         landing_pad_rect = self.get_landing_platform_rect(landing_pad_points, 20)
         self.landing_pad = pygame.draw.rect(self.image, (0, 255, 0), landing_pad_rect)
-        self.centre_landing_pad = ((landing_pad_points[0][0]+landing_pad_points[1][0])/2,(landing_pad_points[0][1]+landing_pad_points[1][1])/2)
+        self.centre_landing_pad = ((landing_pad_points[0][0] + landing_pad_points[1][0]) / 2,
+                                   (landing_pad_points[0][1] + landing_pad_points[1][1]) / 2)
         self.rect = self.image.get_rect()
 
     def random_ground(self, screen_height, screen_width, spacing, variation, landing_pad):
@@ -62,7 +64,7 @@ class Surface(pygame.sprite.Sprite):
 
     def get_landing_platform_rect(self, landing_pad_points, height):
         x = landing_pad_points[0][0]
-        y = landing_pad_points[0][1] - height/2
-        width = landing_pad_points[1][0]-landing_pad_points[0][0]
+        y = landing_pad_points[0][1] - height / 2
+        width = landing_pad_points[1][0] - landing_pad_points[0][0]
 
-        return pygame.Rect(x,y,width,height)
+        return pygame.Rect(x, y, width, height)

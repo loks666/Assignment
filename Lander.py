@@ -1,6 +1,7 @@
 import pygame
-from Vector import Vector
+
 from CollisionUtility import CollisionUtility
+from Vector import Vector
 
 
 class Lander(pygame.sprite.Sprite):
@@ -26,12 +27,12 @@ class Lander(pygame.sprite.Sprite):
 
     def landing_pad_collision(self, surface):
         return self.rect.colliderect(surface.landing_pad)
-            
+
     def surface_collision(self, surface):
         if (self.rect.colliderect(surface.polygon_rect)):
             collided = CollisionUtility.check_lander_collision_with_surface(self, surface)
             return collided
-    
+
     def window_collision(self, screen_dimensions):
         return CollisionUtility.check_gameobject_window_collision(self, screen_dimensions)
 
@@ -54,7 +55,7 @@ class Lander(pygame.sprite.Sprite):
         self.current_angle = self.current_angle + theta
         if (self.current_angle < 0):
             self.current_angle = self.current_angle + 360
-        
+
         if (self.current_angle >= 360):
             self.current_angle = self.current_angle % 360
 
@@ -75,7 +76,7 @@ class Lander(pygame.sprite.Sprite):
         if speed > 8:
             self.velocity = last_velocity
 
-        last_position = self.position # save last position to compute y movement
+        last_position = self.position  # save last position to compute y movement
         # update the changes in position
         self.position = self.position.add(self.velocity)
         if (self.position.y - last_position.y > 0):

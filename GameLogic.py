@@ -1,5 +1,3 @@
-
-
 class GameLogic:
     def __int__(self):
         self

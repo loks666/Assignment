@@ -1,5 +1,7 @@
-import pygame, sys
+import pygame
+import sys
 from pygame.locals import *
+
 
 class EventHandler:
 
