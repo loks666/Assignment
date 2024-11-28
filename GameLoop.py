@@ -30,6 +30,8 @@ class GameLoop:
     def init(self, config_data):
         # used to initialise the pygame library
         pygame.init()
+
+        # 读取配置文件中的全屏设置
         if config_data["FULLSCREEN"] == "TRUE":
             user32 = ctypes.windll.user32
             config_data['SCREEN_HEIGHT'] = int(user32.GetSystemMetrics(1))
@@ -37,9 +39,11 @@ class GameLoop:
             self.screen = pygame.display.set_mode((config_data['SCREEN_WIDTH'], config_data['SCREEN_HEIGHT']),
                                                   pygame.FULLSCREEN)
         else:
+            # 窗口模式，通过配置文件设置屏幕尺寸
             config_data['SCREEN_HEIGHT'] = int(config_data['SCREEN_HEIGHT'])
             config_data['SCREEN_WIDTH'] = int(config_data['SCREEN_WIDTH'])
-            self.screen = pygame.display.set_mode((config_data['SCREEN_WIDTH'], config_data['SCREEN_HEIGHT']))
+            self.screen = pygame.display.set_mode((config_data['SCREEN_WIDTH'], config_data['SCREEN_HEIGHT']))  # 窗口模式
+
         pygame.display.set_caption('CE889 Assignment Template')
         pygame.display.set_icon(pygame.image.load(config_data['LANDER_IMG_PATH']))
 
