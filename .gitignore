@@ -9,7 +9,6 @@
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
-
 # Package Files #
 *.jar
 *.war
@@ -144,3 +143,4 @@ dist-ssr
 *.sln
 *.sw?
 *.exe
+/deep/catboost_info/
