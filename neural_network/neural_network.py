@@ -1,3 +1,5 @@
+# neural_network/neural_network.py
+import joblib
 import numpy as np
 
 class Neuron:
@@ -14,7 +16,6 @@ class Neuron:
         self.output = self.sigmoid(total_input)  # 激活输出
         return self.output
 
-
 class Layer:
     def __init__(self, num_neurons, num_inputs_per_neuron):
         self.neurons = [Neuron(num_inputs_per_neuron) for _ in range(num_neurons)]  # 创建神经元
@@ -22,16 +23,10 @@ class Layer:
     def feedforward(self, inputs):
         return [neuron.feedforward(inputs) for neuron in self.neurons]  # 计算每个神经元的输出
 
-
 class NeuralNetwork:
     def __init__(self, num_inputs, num_hidden_neurons, num_outputs, learning_rate=0.01, momentum=0.9):
         """
         初始化神经网络参数
-        :param num_inputs: 输入层的神经元数量（此处为4：X_dist, Y_dist, Vx, Vy）
-        :param num_hidden_neurons: 隐藏层神经元数量
-        :param num_outputs: 输出层的神经元数量（此处为2：Vx, Vy）
-        :param learning_rate: 学习率
-        :param momentum: 动量，用于加速收敛
         """
         self.num_inputs = num_inputs
         self.num_hidden_neurons = num_hidden_neurons
@@ -74,7 +69,7 @@ class NeuralNetwork:
 
         # 隐藏层到输出层
         self.output_layer_input = np.dot(self.hidden_layer_output, self.weights_hidden_output) + self.bias_output
-        self.output_layer_output = self.sigmoid(self.output_layer_input)
+        self.output_layer_output = self.output_layer_input  # 线性激活
 
         return self.output_layer_output
 
@@ -86,28 +81,23 @@ class NeuralNetwork:
         """
         # 计算输出层误差
         output_error = expected_output - self.output_layer_output
-        output_delta = output_error * self.sigmoid_derivative(self.output_layer_output)
+        output_delta = output_error  # 线性激活的导数为1
 
         # 计算隐藏层误差
         hidden_error = output_delta.dot(self.weights_hidden_output.T)  # 错误反向传播到隐藏层
         hidden_delta = hidden_error * self.sigmoid_derivative(self.hidden_layer_output)
 
         # 更新权重和偏置（使用动量）
-        # 修正矩阵形状，使得矩阵乘法能够正常进行
-        self.weights_hidden_output += np.dot(self.hidden_layer_output.reshape(-1, 1), output_delta.reshape(1,
-                                                                                                           -1)) * self.learning_rate + self.delta_w_hidden_output * self.momentum
-        self.weights_input_hidden += np.dot(self.input_layer.reshape(-1, 1), hidden_delta.reshape(1,
-                                                                                                  -1)) * self.learning_rate + self.delta_w_input_hidden * self.momentum
+        self.weights_hidden_output += np.dot(self.hidden_layer_output.reshape(-1, 1), output_delta.reshape(1, -1)) * self.learning_rate + self.delta_w_hidden_output * self.momentum
+        self.weights_input_hidden += np.dot(self.input_layer.reshape(-1, 1), hidden_delta.reshape(1, -1)) * self.learning_rate + self.delta_w_input_hidden * self.momentum
 
         # 更新偏置（偏置是一个一维数组，直接求和）
         self.bias_output += np.sum(output_delta, axis=0) * self.learning_rate + self.delta_bias_output * self.momentum
         self.bias_hidden += np.sum(hidden_delta, axis=0) * self.learning_rate + self.delta_bias_hidden * self.momentum
 
         # 保存权重变化量，用于下一轮的动量更新
-        self.delta_w_input_hidden = np.dot(self.input_layer.reshape(-1, 1),
-                                           hidden_delta.reshape(1, -1)) * self.learning_rate
-        self.delta_w_hidden_output = np.dot(self.hidden_layer_output.reshape(-1, 1),
-                                            output_delta.reshape(1, -1)) * self.learning_rate
+        self.delta_w_input_hidden = np.dot(self.input_layer.reshape(-1, 1), hidden_delta.reshape(1, -1)) * self.learning_rate
+        self.delta_w_hidden_output = np.dot(self.hidden_layer_output.reshape(-1, 1), output_delta.reshape(1, -1)) * self.learning_rate
         self.delta_bias_hidden = np.sum(hidden_delta, axis=0) * self.learning_rate
         self.delta_bias_output = np.sum(output_delta, axis=0) * self.learning_rate
 
@@ -127,5 +117,31 @@ class NeuralNetwork:
 
             # 每100个epoch打印一次损失值
             if epoch % 100 == 0:
-                loss = np.mean(np.square(y_train - self.forward(X_train)))  # 计算当前损失
+                # 计算整个训练集的输出
+                outputs = np.array([self.forward(x) for x in X_train])
+                loss = np.mean(np.square(y_train - outputs))  # 计算当前损失
                 print(f"Epoch {epoch}, Loss: {loss}")
+
+    def save_weights(self, filename):
+        """
+        保存模型权重和偏置到文件
+        """
+        weights = {
+            'weights_input_hidden': self.weights_input_hidden,
+            'weights_hidden_output': self.weights_hidden_output,
+            'bias_hidden': self.bias_hidden,
+            'bias_output': self.bias_output
+        }
+        joblib.dump(weights, filename)
+        print(f"模型权重已保存到 {filename}")
+
+    def load_weights(self, filename):
+        """
+        从文件加载模型权重和偏置
+        """
+        weights = joblib.load(filename)
+        self.weights_input_hidden = weights['weights_input_hidden']
+        self.weights_hidden_output = weights['weights_hidden_output']
+        self.bias_hidden = weights['bias_hidden']
+        self.bias_output = weights['bias_output']
+        print(f"模型权重已从 {filename} 加载")
