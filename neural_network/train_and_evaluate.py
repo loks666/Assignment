@@ -6,7 +6,7 @@ import joblib
 import os
 
 # 确保正确导入 NeuralNetwork 类
-from neural_network.neural_network import NeuralNetwork
+from neural_network import NeuralNetwork
 
 def main():
     # 1. 加载训练集和测试集
