@@ -4,7 +4,7 @@ class DataCollection:
         self.data_file = open("ce889_dataCollection.csv", "a")
         self.data_file.close()
         self.buffer = []
-        self.all_data = (all_data == "TRUE")
+        self.all_data = (all_data.upper() == "TRUE")
 
     def get_input_row(self, lander, surface, controller):
         """
@@ -61,7 +61,7 @@ class DataCollection:
                          str(new_angle) + "," + \
                          str(turning[0]) + "," + str(turning[1]) + "\n"
         else:
-            # 仅包含四个特征
+            # 仅包含四个特征和当前速度
             status_row = ",".join(map(str, input_row)) + "," + \
                          str(new_vel_y) + "," + \
                          str(new_vel_x) + "\n"

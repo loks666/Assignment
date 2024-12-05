@@ -149,6 +149,7 @@ class GameLoop:
                 self.Handler.handle(pygame.event.get())
 
                 # 检查是否激活神经网络控制模式（假设 game_modes[2] 是神经网络模式）
+                # GameLoop.py (相关部分)
                 if game_modes[2]:
                     self.prediction_cycle += 1
                     # 每隔一定帧进行一次预测（例如，每2帧）
@@ -156,18 +157,28 @@ class GameLoop:
                         input_row = data_collector.get_input_row(self.lander, self.surface, self.controller)
                         print(f"获取到的 input_row: {input_row}")  # 添加调试输出
                         nn_prediction = self.neuralnet.predict(input_row)
+
                         # 重置控制器
                         self.controller.set_up(False)
                         self.controller.set_left(False)
                         self.controller.set_right(False)
 
+                        # 放大预测输出
+                        Vx_pred, Vy_pred = nn_prediction
+                        Vx_pred *= 20  # 放大因子，可根据需要调整
+                        Vy_pred *= 20
+
+                        # 设置阈值，避免过于频繁的控制信号
+                        Vx_threshold = 1.0  # 调整阈值
+                        Vy_threshold = 1.0
+
                         # 根据预测调整控制器状态
-                        if self.lander.velocity.y > nn_prediction[1]:
+                        if self.lander.velocity.y > Vy_pred + Vy_threshold:
                             self.controller.set_up(True)
 
-                        if self.lander.velocity.x < nn_prediction[0]:
+                        if self.lander.velocity.x < Vx_pred - Vx_threshold:
                             self.controller.set_right(True)
-                        elif self.lander.velocity.x > nn_prediction[0]:
+                        elif self.lander.velocity.x > Vx_pred + Vx_threshold:
                             self.controller.set_left(True)
 
                         # 限制最大角度
@@ -180,9 +191,10 @@ class GameLoop:
                                 self.lander.current_angle = 330
 
                         # 调试输出
-                        print("Current controller status:", self.controller.up, self.controller.left, self.controller.right)
+                        print("Current controller status:", self.controller.up, self.controller.left,
+                              self.controller.right)
                         print("Lander velocity:", self.lander.velocity.x, self.lander.velocity.y)
-                        print("Predicted velocity:", nn_prediction)
+                        print("Predicted velocity (scaled):", [Vx_pred, Vy_pred])
 
                 # 渲染背景
                 self.screen.blit(background_image, (0, 0))

@@ -5,15 +5,14 @@ import pandas as pd
 
 from neural_network.neural_network import NeuralNetwork  # 确保路径正确
 
-
 class NeuralNetHolder:
     def __init__(self):
         # 加载缩放器
-        self.scaler = joblib.load('neural_network/scaler.pkl')
+        self.scaler = joblib.load('neural_network/scaler.pkl')  # 根据修正后的保存路径
         print("缩放器已加载")
 
         # 创建神经网络实例
-        self.nn = NeuralNetwork(num_inputs=4, num_hidden_neurons=3, num_outputs=2)
+        self.nn = NeuralNetwork(num_inputs=4, num_hidden_neurons=5, num_outputs=2)
 
         # 加载训练好的权重
         self.nn.load_weights('neural_network/trained_model.pkl')
