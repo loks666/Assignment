@@ -48,6 +48,10 @@ for col in categorical_cols:
     train[col] = le.fit_transform(train[col].astype(str))
     test[col] = le.transform(test[col].astype(str))
 
+# 去除测试集中不存在的列
+if 'Customers' in train.columns:
+    train.drop(['Customers'], axis=1, inplace=True)
+
 # 定义特征和目标
 target = 'Sales'
 features = [
@@ -70,19 +74,8 @@ models = {
     "RandomForest": RandomForestRegressor(n_estimators=50, max_depth=15, n_jobs=-1, random_state=42),
     "GradientBoosting": GradientBoostingRegressor(n_estimators=100, learning_rate=0.1, random_state=42),
     "MLPRegressor": MLPRegressor(hidden_layer_sizes=(50,), max_iter=200, activation='relu', random_state=42, early_stopping=True, validation_fraction=0.1, n_iter_no_change=10),
-# "   MLPRegressor": MLPRegressor(
-#         hidden_layer_sizes=(10,),            # 使用一个隐藏层，只有 10 个神经元
-#         max_iter=100,                        # 将最大迭代次数减少到 100
-#         activation='relu',                   # 使用 ReLU 激活函数
-#         random_state=42,
-#         early_stopping=True,                 # 启用早停法
-#         validation_fraction=0.1,             # 用 10% 的数据进行验证
-#         n_iter_no_change=5,                  # 如果 5 轮内验证集上没有变化，则提前停止
-#         learning_rate_init=0.01              # 设置初始学习率
-#     ),
     "CatBoost": CatBoostRegressor(iterations=1000, learning_rate=0.05, depth=10, verbose=0, random_state=42)
 }
-
 
 # 3. 训练模型并评估
 mse_scores = {}
@@ -98,21 +91,27 @@ for name, model in models.items():
     rmse_scores[name] = rmse
     print(f"{name} RMSE: {rmse}")
 
-# 4. 找出最佳模型
+# 4. 输出每个模型的 RMSE
+print("\nModel RMSE Scores:")
+for name, rmse in rmse_scores.items():
+    print(f"{name}: {rmse}")
+
+# 5. 找出最佳模型
 best_model_name = min(rmse_scores, key=rmse_scores.get)
 best_model = models[best_model_name]
-print(f"Best Model: {best_model_name} with RMSE: {rmse_scores[best_model_name]}")
+print(f"\nBest Model: {best_model_name} with RMSE: {rmse_scores[best_model_name]}")
 
-# 5. 使用最佳模型生成预测数据
+# 6. 使用最佳模型生成预测数据
 print("Generating predictions with the best model...")
 y_test_pred = best_model.predict(X_test)
 
 # 创建提交文件
 submission = pd.DataFrame({'Id': test['Id'], 'Sales': y_test_pred})
-submission.to_csv('submission.csv', index=False)
-print("Submission file created: submission.csv")
+submission_file = f"submission_{best_model_name}.csv"
+submission.to_csv(submission_file, index=False)
+print(f"Submission file created: {submission_file}")
 
-# 6. 输出最佳模型的 RMSE 比例误差图
+# 7. 输出最佳模型的 RMSE 比例误差图
 # 比较每个模型的 RMSE 和相对误差（相对RMSE = RMSE / 平均值）
 relative_rmse = {model: rmse / y_train.mean() * 100 for model, rmse in rmse_scores.items()}
 
